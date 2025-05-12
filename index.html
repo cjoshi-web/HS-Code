@@ -207,6 +207,8 @@
                             let value1Value = '';
                             let name22Value = '';
                             let value2Value = '';
+                            let name3Value = '';
+                            let value3Value = '';
 
                             if (rowData && rowData.length > 2) {
                                  hsCodeValue = rowData[2].textContent;
@@ -226,7 +228,13 @@
                             if (rowData && rowData.length > 11) {
                                  value2Value = rowData[11].textContent;
                             }
-                            const combinedValue = `${hsCodeValue} -- ${cooValue} // ${name1Value} ** ${value1Value} // ${name22Value} ** ${value2Value}`;
+                            if (rowData && rowData.length > 12) {
+                                 name3Value = rowData[12].textContent;
+                            }
+                            if (rowData && rowData.length > 13) {
+                                 value3Value = rowData[13].textContent;
+                            }
+                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name22Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
                             if (combinedValue) {
                                 convertTextToImage(combinedValue, event.target);
                             } else {
@@ -261,92 +269,101 @@
                     });
 
                     const searchInput = document.getElementById("search-input");
+                    let lastSearchTerm = "";
 
                     searchInput.addEventListener("input", function () {
                         const searchTerm = this.value.toLowerCase();
                         dataBody.innerHTML = '';
+                        let found = false;
 
-                        rawData.forEach(row => {
-                            let displayRow = true;
-                            for (let i = 1; i < row.length; i++) {
-                                let cellValue = row[i];
-                                if (typeof cellValue === 'object' && cellValue instanceof Node) {
-                                     continue;
-                                }
-                                if (cellValue && String(cellValue).toLowerCase().includes(searchTerm)) {
-                                    displayRow = true;
-                                    break;
-                                } else {
-                                    displayRow = false;
+                         rawData.forEach(row => {
+                            let displayRow = false;
+                            if (searchTerm === "") {
+                                displayRow = true;
+                                found = true;
+                            }
+                            else{
+                                for (let i = 1; i < row.length; i++) {
+                                    let cellValue = row[i];
+                                    if (typeof cellValue === 'object' && cellValue instanceof Node) {
+                                        continue;
+                                    }
+                                    if (cellValue && String(cellValue).toLowerCase().includes(searchTerm)) {
+                                        displayRow = true;
+                                        found = true;
+                                        break;
+                                    }
                                 }
                             }
 
+
                             if (displayRow) {
                                 let tr = document.createElement("tr");
-                                const shareButtonCell = document.createElement("td");
-                                const shareButton = document.createElement("button");
-                                shareButton.className = "share-button";
-                                shareButton.textContent = "Share";
-                                 shareButton.addEventListener('click', function(event) {
-                                      const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
-                                     let hsCodeValue = '';
-                                     let cooValue = '';
-                                     let name1Value = '';
-                                     let value1Value = '';
-                                     let name22Value = '';
-                                     let value2Value = '';
+                                const shareButtonCell = row[0];
+                                 shareButtonCell.querySelector('button').addEventListener('click', function(event) {
+                                       const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
+                                        let hsCodeValue = '';
+                                        let cooValue = '';
+                                        let name1Value = '';
+                                        let value1Value = '';
+                                        let name22Value = '';
+                                        let value2Value = '';
+                                        let name3Value = '';
+                                        let value3Value = '';
 
-                                     if (rowData && rowData.length > 2) {
-                                          hsCodeValue = rowData[2].textContent;
-                                     }
-                                     if (rowData && rowData.length > 3) {
-                                          cooValue = rowData[3].textContent;
-                                     }
-                                      if (rowData && rowData.length > 8) {
-                                          name1Value = rowData[8].textContent;
-                                     }
-                                     if (rowData && rowData.length > 9) {
-                                          value1Value = row[9].textContent;
-                                     }
-                                      if (rowData && rowData.length > 10) {
-                                          name22Value = rowData[10].textContent;
-                                     }
-                                     if (rowData && rowData.length > 11) {
-                                          value2Value = row[11].textContent;
-                                     }
-                                     const combinedValue = `${hsCodeValue} -- ${cooValue} // ${name1Value} ** ${value1Value} // ${name22Value} ** ${value2Value}`;
-
-                                     if (combinedValue) {
-                                         convertTextToImage(combinedValue, event.target);
-                                     }
-                                     else{
-                                          alert(' values not found!');
-                                     }
-                                 });
-                                shareButtonCell.appendChild(shareButton);
-                                tr.appendChild(shareButtonCell);
-                                tr.addEventListener('click', function() {
-                                    const selectedRow = document.querySelector('.table tbody tr.selected');
-                                    if (selectedRow) {
-                                        selectedRow.classList.remove('selected');
+                                        if (rowData && rowData.length > 2) {
+                                            hsCodeValue = rowData[2].textContent;
+                                        }
+                                        if (rowData && rowData.length > 3) {
+                                            cooValue = rowData[3].textContent;
+                                        }
+                                        if (rowData && rowData.length > 8) {
+                                            name1Value = rowData[8].textContent;
+                                        }
+                                        if (rowData && rowData.length > 9) {
+                                            value1Value = rowData[9].textContent;
+                                        }
+                                        if (rowData && rowData.length > 10) {
+                                            name22Value = rowData[10].textContent;
+                                        }
+                                        if (rowData && rowData.length > 11) {
+                                            value2Value = rowData[11].textContent;
+                                        }
+                                        if (rowData && rowData.length > 12) {
+                                            name3Value = rowData[12].textContent;
+                                        }
+                                        if (rowData && rowData.length > 13) {
+                                            value3Value = rowData[13].textContent;
+                                        }
+                                     const combinedValue = `HS Code: ${hsCodeValue || ''}  //  COO: ${cooValue || ''}  //  Name1: ${name1Value || ''}  Value1: ${value1Value || ''}  //  Name2: ${name22Value || ''}  Value2: ${value2Value || ''}  // Name3: ${name3Value || ''}  Value3: ${value3Value || ''}`;
+                                      if (combinedValue) {
+                                        convertTextToImage(combinedValue, event.target);
                                     }
-                                    this.classList.add('selected');
-                                });
+                                    else{
+                                        alert(' values not found!');
+                                    }
+                                 });
+                                tr.appendChild(shareButtonCell);
                                 for (let i = 1; i < row.length; i++) {
                                     let cellValue = row[i];
                                     let td = document.createElement("td");
-                                    if (typeof cellValue === 'object' && cellValue instanceof Node) {
+                                     if (typeof cellValue === 'object' && cellValue instanceof Node) {
                                          td.appendChild(cellValue)
                                     }
                                     else{
                                          td.textContent = cellValue;
                                      }
-
                                     tr.appendChild(td);
                                 }
                                 dataBody.appendChild(tr);
                             }
                         });
+                        if (searchTerm === "") {
+                            lastSearchTerm = "";
+                        }
+                        else{
+                            lastSearchTerm = searchTerm;
+                        }
                     });
                 })
                 .catch(error => {
@@ -361,42 +378,85 @@
             const ctx = canvas.getContext('2d');
 
             // Set the dimensions of the canvas
-            canvas.width = 600;
-            canvas.height = 200;
+            canvas.width = 800;
+            canvas.height = 300;
 
-            // Background
-            ctx.fillStyle = '#f8f8f8'; // Light background
+            // Background - White for better readability
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Text styling
-            ctx.font = 'bold 24px Inter'; // Increased font size and bold
-            ctx.fillStyle = '#2c3e50'; // Darker text color for better contrast
+            // Text styling - Black for better readability
+            ctx.font = 'bold 18px Inter';  // Reduced font size
+            ctx.fillStyle = '#000000';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.1)'; // Refined shadow
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 2;
-            ctx.shadowOffsetY = 2;
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'; // Increased shadow intensity
+            ctx.shadowBlur = 12;  // Increased shadow blur
+            ctx.shadowOffsetX = 3; // Increased shadow offset
+            ctx.shadowOffsetY = 3; // Increased shadow offset
 
             // Split the text into lines
             const lines = text.split('//');
-            const lineHeight = 36;  // Adjust as needed for line spacing, increased to match font size
-            const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2; // Center Vertically
+            const lineHeight = 24; // Reduced line height
+            const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+
+            // Function to draw text with line breaks, centering, and bold formatting
+            function drawText(context, text, x, y, maxWidth) {
+                const words = text.split(' ');
+                let line = '';
+                const lineSpacing = 4; // Reduced line spacing
+
+                context.font = '18px Inter'; // Reduced font size
+                context.fillStyle = '#000000';  // Black Text
+
+                for (let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    const metrics = context.measureText(testLine);
+                    const testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, y);
+                        line = words[n] + ' ';
+                        y += lineHeight + lineSpacing;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, y);
+                return y; // Return the y-coordinate of the last line
+            }
 
             // Print each line of the text on the canvas
             lines.forEach((line, index) => {
                 const trimmedLine = line.trim();
-                ctx.fillText(trimmedLine, canvas.width / 2, startY + index * lineHeight);
+                let x = canvas.width / 2;
+                let y = startY + index * lineHeight;
+                const maxWidth = canvas.width - 100;
+
+                 const parts = trimmedLine.split('  //  ');
+                if (parts.length > 1) {
+                    const firstPart = parts[0].trim();
+                    const secondPart = parts[1].trim();
+                    context.font = 'bold 18px Inter';  // Reduced font size
+                    y = drawText(ctx, firstPart, x, y, maxWidth);
+                    context.font = '18px Inter';  // Reduced font size
+                     y = drawText(ctx, secondPart, x, y+lineHeight, maxWidth);
+                }
+                else{
+                     y = drawText(ctx, trimmedLine, x, y, maxWidth);
+                }
             });
 
-            // Convert the canvas to a data URL
-            const dataURL = canvas.toDataURL('image/jpeg', 0.95); // 0.95 for very high quality
+            // Convert the canvas to a data URL with higher quality
+            const dataURL = canvas.toDataURL('image/jpeg', 0.95);  // 0.95 for high quality
 
-            // Open the image in a new tab
-            const img = new Image();
-            img.src = dataURL;
+            // Create a new window for the image
             const newTab = window.open();
-            newTab.document.body.appendChild(img);
+            if (newTab) {
+                newTab.document.write('<html><head><title>Data Image</title></head><body><img src="' + dataURL + '" style="width:100%; height:auto;"></body></html>');
+                newTab.document.close(); // Important: Close the document!
+            } else {
+                alert('Popup blocker is preventing the image from opening. Please allow popups for this site.');
+            }
 
             clickedButton.textContent = 'Opened!';
             setTimeout(() => {
