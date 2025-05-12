@@ -454,8 +454,6 @@
             if (newTab) {
                 newTab.document.write('<html><head><title>Data Image</title></head><body><img src="' + dataURL + '" style="width:100%; height:auto;"></body></html>');
                 newTab.document.close(); // Important: Close the document!
-            } else {
-                alert('Popup blocker is preventing the image from opening. Please allow popups for this site.');
             }
 
             clickedButton.textContent = 'Opened!';
