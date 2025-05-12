@@ -238,7 +238,7 @@
                             if (rowData && rowData.length > 13) {
                                  value3Value = rowData[13].textContent;
                             }
-                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''} ${UOMValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name2Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
+                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''}  // ${UOMValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name2Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
                             if (combinedValue) {
                                 convertTextToImage(combinedValue, event.target);
                             } else {
