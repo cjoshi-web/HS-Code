@@ -203,6 +203,7 @@
                             const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
                             let hsCodeValue = '';
                             let cooValue = '';
+							let UOMValue = '';
                             let name1Value = '';
                             let value1Value = '';
                             let name2Value = '';
@@ -216,7 +217,10 @@
                             if (rowData && rowData.length > 3) {
                                  cooValue = rowData[3].textContent;
                             }
-                             if (rowData && rowData.length > 8) {
+							if (rowData && rowData.length > 4) {
+                                 UOMValue = rowData[4].textContent;
+                            }							
+                            if (rowData && rowData.length > 8) {
                                  name1Value = rowData[8].textContent;
                             }
                             if (rowData && rowData.length > 9) {
@@ -234,7 +238,7 @@
                             if (rowData && rowData.length > 13) {
                                  value3Value = rowData[13].textContent;
                             }
-                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name2Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
+                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''} ${UOMValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name2Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
                             if (combinedValue) {
                                 convertTextToImage(combinedValue, event.target);
                             } else {
@@ -304,7 +308,7 @@
                                        const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
                                         let hsCodeValue = '';
                                         let cooValue = '';
-										let uom = '';
+										let UOMValue = '';
 										
                                         let name1Value = '';
                                         let value1Value = '';
@@ -321,7 +325,7 @@
                                             cooValue = rowData[3].textContent;
                                         }
 										if (rowData && rowData.length > 4) {
-                                            uom = rowData[4].textContent;
+                                            UOMValue = rowData[4].textContent;
                                         }
                                         if (rowData && rowData.length > 8) {
                                             name1Value = rowData[8].textContent;
@@ -341,7 +345,7 @@
                                         if (rowData && rowData.length > 13) {
                                             value3Value = rowData[13].textContent;
                                         }
-                                     const combinedValue = `HS Code: ${hsCodeValue || ''}  //  COO: ${cooValue || ''}  //  UOM: ${uom || ''} //  Name1: ${name1Value || ''}  Value1: ${value1Value || ''}  //  Name2: ${name2Value || ''}  Value2: ${value2Value || ''}  // Name3: ${name3Value || ''}  Value3: ${value3Value || ''}`;
+                                     const combinedValue = `HS Code: ${hsCodeValue || ''}  //  COO: ${cooValue || ''}  //  UOM: ${UOMValue || ''} //  Name1: ${name1Value || ''}  Value1: ${value1Value || ''}  //  Name2: ${name2Value || ''}  Value2: ${value2Value || ''}  // Name3: ${name3Value || ''}  Value3: ${value3Value || ''}`;
                                       if (combinedValue) {
                                         convertTextToImage(combinedValue, event.target);
                                     }
@@ -472,3 +476,4 @@
     </script>
 </body>
 </html>
+
