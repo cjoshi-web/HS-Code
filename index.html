@@ -14,13 +14,13 @@
                 alert("Welcome Apparel Employee!");
 
                 // Store username and password in session storage
-                sessionStorage.setItem('username', username);
-                sessionStorage.setItem('password', password);
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
 
                 // Set timeout for 10 minutes (10 * 60 * 1000 milliseconds)
                 setTimeout(function() {
-                    sessionStorage.removeItem('username');
-                    sessionStorage.removeItem('password');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('password');
                     alert("Session expired. Please log in again.");
                     window.location.href = "index.html"; // Redirect to login page
                 }, 10 * 60 * 1000);
@@ -35,10 +35,10 @@
         }
 
         window.onload = function() {
-            if (sessionStorage.getItem('username') && sessionStorage.getItem('password')) {
+            if (localStorage.getItem('username') && localStorage.getItem('password')) {
                  setTimeout(function() {
-                    sessionStorage.removeItem('username');
-                    sessionStorage.removeItem('password');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('password');
                     alert("Session expired. Please log in again.");
                     window.location.href = "index.html"; // Redirect to login page
                 }, 10 * 60 * 1000);

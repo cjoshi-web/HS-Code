@@ -493,7 +493,7 @@
 
         window.onload = function() {
             // Check for session data (example keys: 'username' and 'password')
-            if (sessionStorage.getItem('username') === null || sessionStorage.getItem('password') === null) {
+            if (localStorage.getItem('username') === null || localStorage.getItem('password') === null) {
                 alert('You must be logged in to access this page. Redirecting to login...');
                 window.location.href = 'index.html'; // Redirect to the login page
             } else {
@@ -505,7 +505,7 @@
                 logoutButton.addEventListener('click', function() {
                     // In a real application, you would send a request to your server to clear the session.
                     // For this example, we will just clear the local data and reload the page.
-                    sessionStorage.clear();
+                    localStorage.clear();
                     alert('You have been logged out.');
                     window.location.href = 'index.html';
                 });
