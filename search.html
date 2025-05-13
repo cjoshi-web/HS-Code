@@ -492,7 +492,13 @@
         }
 
         window.onload = function() {
-            loadSheet();
+            // Check for session data (example keys: 'username' and 'password')
+            if (localStorage.getItem('username') === null || localStorage.getItem('password') === null) {
+                alert('You must be logged in to access this page. Redirecting to login...');
+                window.location.href = 'index.html'; // Redirect to the login page
+            } else {
+                loadSheet();  // Only load the sheet data if logged in
+            }
 
             const logoutButton = document.getElementById('logout-button');
             if (logoutButton) {
