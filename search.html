@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Oman Criteria Finder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container-fluid {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #search-input {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #ccc;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+            font-size: 1.1rem;
+            width: 400px;
+            max-width: 90%;
+            transition: all 0.3s ease;
+        }
+        #search-input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        .table-container {
+            border-radius: 1rem;
+            background-color: #fff;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            width: 95%;
+            max-width: 1200px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            position: relative;
+        }
+        .table thead th {
+            padding: 1.2rem;
+            text-align: center;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+            color: #333;
+            background-color: #f8f8f8;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            width: fit-content;
+            white-space: nowrap;
+        }
+        .table thead th:hover {
+            background-color: #f0f0f0;
+        }
+        .table tbody tr {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+        .table tbody tr:hover {
+            background-color: #f5f5f5;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+        }
+        .table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-size: 1rem;
+            color: #444;
+            width: fit-content;
+            white-space: nowrap;
+            text-align: center;
+        }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .table tbody tr.selected {
+            background-color: #e0f7fa !important;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+        }
+        .share-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+        .share-button:hover {
+            background-color: #45a049;
+        }
+        #canvas {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .table-container {
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            #search-input {
+                width: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            .container-fluid{
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <input type="text" id="search-input" class="form-control" placeholder="Search HS Code...">
+        <div class="table-container">
+            <table id="data-table" class="table table-hover">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        // Source: https://stackoverflow.com/a/53218732
+        function urlToKey(url) {
+            const match = url.match(/[-\w]{25,}/);
+            return match ? match[0] : null;
+        }
+
+        function loadSheet() {
+            const sheetUrl = "https://docs.google.com/spreadsheets/d/1e7gJyAZbJIRqDh83Wn6oiz0SMZstT-Nr/edit?usp=drive_link&ouid=104756939868141529459&rtpof=true&sd=true";
+            const sheetId = urlToKey(sheetUrl);
+            const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+
+            fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                    const jsonData = JSON.parse(data.substring(47).slice(0, -2));
+                    const table = document.getElementById("data-table");
+                    let headerRow = table.querySelector("thead tr");
+                    let dataBody = table.querySelector("tbody");
+                    headerRow.innerHTML = '';
+                    dataBody.innerHTML = '';
+
+                    if (!jsonData.table || !jsonData.table.rows) {
+                        table.innerHTML = '<b>Error: No data found in the Google Sheet.  Please check the URL and ensure the sheet is published.</b>';
+                        return;
+                    }
+
+                    const headers = jsonData.table.cols.map(col => col.label);
+                    headers.unshift('Share');
+
+                    headers.forEach((header, index) => {
+                        let th = document.createElement("th");
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+
+                    let rawData = [];
+                    jsonData.table.rows.forEach(row => {
+                        let tr = document.createElement("tr");
+                        const shareButtonCell = document.createElement("td");
+                        const shareButton = document.createElement("button");
+                        shareButton.className = "share-button";
+                        shareButton.textContent = "Share";
+                        shareButton.addEventListener('click', function(event) {
+                            // Find the  values in the row.
+                            const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
+                            let hsCodeValue = '';
+                            let cooValue = '';
+							let UOMValue = '';
+                            let name1Value = '';
+                            let value1Value = '';
+                            let name2Value = '';
+                            let value2Value = '';
+                            let name3Value = '';
+                            let value3Value = '';
+
+                            if (rowData && rowData.length > 2) {
+                                 hsCodeValue = rowData[2].textContent;
+                            }
+                            if (rowData && rowData.length > 3) {
+                                 cooValue = rowData[3].textContent;
+                            }
+							if (rowData && rowData.length > 4) {
+                                 UOMValue = rowData[4].textContent;
+                            }							
+                            if (rowData && rowData.length > 8) {
+                                 name1Value = rowData[8].textContent;
+                            }
+                            if (rowData && rowData.length > 9) {
+                                 value1Value = rowData[9].textContent;
+                            }
+                             if (rowData && rowData.length > 10) {
+                                 name2Value = rowData[10].textContent;
+                            }
+                            if (rowData && rowData.length > 11) {
+                                 value2Value = rowData[11].textContent;
+                            }
+                            if (rowData && rowData.length > 12) {
+                                 name3Value = rowData[12].textContent;
+                            }
+                            if (rowData && rowData.length > 13) {
+                                 value3Value = rowData[13].textContent;
+                            }
+                            const combinedValue = `${hsCodeValue || ''}  // ${cooValue || ''}  // ${UOMValue || ''} // ${name1Value || ''} ${value1Value || ''}  // ${name2Value || ''} ${value2Value || ''}  // ${name3Value || ''} ${value3Value || ''}`;
+                            if (combinedValue) {
+                                convertTextToImage(combinedValue, event.target);
+                            } else {
+                                alert(' values not found!');
+                            }
+                        });
+                        shareButtonCell.appendChild(shareButton);
+                        tr.appendChild(shareButtonCell);
+
+                        let rowData = [];
+                        rowData.push(shareButtonCell);
+                        row.c.forEach((cell, index) => {
+                            let cellValue = (cell && cell.v != null) ? cell.v : '';
+                            rowData.push(cellValue);
+                        });
+
+                        row.c.forEach((cell, index) => {
+                            let cellValue = (cell && cell.v != null) ? cell.v : '';
+                            let td = document.createElement("td");
+                            td.textContent = cellValue;
+                            tr.appendChild(td);
+                        });
+                        tr.addEventListener('click', function() {
+                            const selectedRow = document.querySelector('.table tbody tr.selected');
+                            if (selectedRow) {
+                                selectedRow.classList.remove('selected');
+                            }
+                            this.classList.add('selected');
+                        });
+                        dataBody.appendChild(tr);
+                        rawData.push(rowData);
+                    });
+
+                    const searchInput = document.getElementById("search-input");
+                    let lastSearchTerm = "";
+
+                    searchInput.addEventListener("input", function () {
+                        const searchTerm = this.value.toLowerCase();
+                        dataBody.innerHTML = '';
+                        let found = false;
+
+                         rawData.forEach(row => {
+                            let displayRow = false;
+                            if (searchTerm === "") {
+                                displayRow = true;
+                                found = true;
+                            }
+                            else{
+                                for (let i = 1; i < row.length; i++) {
+                                    let cellValue = row[i];
+                                    if (typeof cellValue === 'object' && cellValue instanceof Node) {
+                                        continue;
+                                    }
+                                    if (cellValue && String(cellValue).toLowerCase().includes(searchTerm)) {
+                                        displayRow = true;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+
+                            if (displayRow) {
+                                let tr = document.createElement("tr");
+                                const shareButtonCell = row[0];
+                                 shareButtonCell.querySelector('button').addEventListener('click', function(event) {
+                                       const rowData = Array.from(this.parentNode.parentNode.querySelectorAll('td'));
+                                        let hsCodeValue = '';
+                                        let cooValue = '';
+										let UOMValue = '';
+										
+                                        let name1Value = '';
+                                        let value1Value = '';
+                                        let name2Value = '';
+                                        let value2Value = '';
+                                        let name3Value = '';
+                                        let value3Value = '';
+										
+
+                                        if (rowData && rowData.length > 2) {
+                                            hsCodeValue = rowData[2].textContent;
+                                        }
+                                        if (rowData && rowData.length > 3) {
+                                            cooValue = rowData[3].textContent;
+                                        }
+										if (rowData && rowData.length > 4) {
+                                            UOMValue = rowData[4].textContent;
+                                        }
+                                        if (rowData && rowData.length > 8) {
+                                            name1Value = rowData[8].textContent;
+                                        }
+                                        if (rowData && rowData.length > 9) {
+                                            value1Value = rowData[9].textContent;
+                                        }
+                                        if (rowData && rowData.length > 10) {
+                                            name2Value = rowData[10].textContent;
+                                        }
+                                        if (rowData && rowData.length > 11) {
+                                            value2Value = rowData[11].textContent;
+                                        }
+                                        if (rowData && rowData.length > 12) {
+                                            name3Value = rowData[12].textContent;
+                                        }
+                                        if (rowData && rowData.length > 13) {
+                                            value3Value = rowData[13].textContent;
+                                        }
+                                     const combinedValue = `HS Code: ${hsCodeValue || ''}  //  COO: ${cooValue || ''}  //  UOM: ${UOMValue || ''} //  Name1: ${name1Value || ''}  Value1: ${value1Value || ''}  //  Name2: ${name2Value || ''}  Value2: ${value2Value || ''}  // Name3: ${name3Value || ''}  Value3: ${value3Value || ''}`;
+                                      if (combinedValue) {
+                                        convertTextToImage(combinedValue, event.target);
+                                    }
+                                    else{
+                                        alert(' values not found!');
+                                    }
+                                 });
+                                tr.appendChild(shareButtonCell);
+                                for (let i = 1; i < row.length; i++) {
+                                    let cellValue = row[i];
+                                    let td = document.createElement("td");
+                                     if (typeof cellValue === 'object' && cellValue instanceof Node) {
+                                         td.appendChild(cellValue)
+                                    }
+                                    else{
+                                         td.textContent = cellValue;
+                                     }
+                                    tr.appendChild(td);
+                                }
+                                dataBody.appendChild(tr);
+                            }
+                        });
+                        if (searchTerm === "") {
+                            lastSearchTerm = "";
+                        }
+                        else{
+                            lastSearchTerm = searchTerm;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching or parsing data:", error);
+                    const table = document.getElementById("data-table");
+                    table.innerHTML = `<b>Error: Could not retrieve data from the Google Sheet.  Please check the URL and your internet connection. Error Details: ${error}</b>`;
+                });
+        }
+
+        function convertTextToImage(text, clickedButton) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set the dimensions of the canvas
+            canvas.width = 800;
+            canvas.height = 300;
+
+            // Background - White for better readability
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Text styling - Black for better readability
+            ctx.font = 'bold 18px Inter';  // Reduced font size
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'; // Increased shadow intensity
+            ctx.shadowBlur = 12;  // Increased shadow blur
+            ctx.shadowOffsetX = 3; // Increased shadow offset
+            ctx.shadowOffsetY = 3; // Increased shadow offset
+
+            // Split the text into lines
+            const lines = text.split('//');
+            const lineHeight = 24; // Reduced line height
+            const startY = canvas.height / 2 - (lines.length - 1) * lineHeight / 2;
+
+            // Function to draw text with line breaks, centering, and bold formatting
+            function drawText(context, text, x, y, maxWidth) {
+                const words = text.split(' ');
+                let line = '';
+                const lineSpacing = 4; // Reduced line spacing
+
+                context.font = '18px Inter'; // Reduced font size
+                context.fillStyle = '#000000';  // Black Text
+
+                for (let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n] + ' ';
+                    const metrics = context.measureText(testLine);
+                    const testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        context.fillText(line, x, y);
+                        line = words[n] + ' ';
+                        y += lineHeight + lineSpacing;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                context.fillText(line, x, y);
+                return y; // Return the y-coordinate of the last line
+            }
+
+            // Print each line of the text on the canvas
+            lines.forEach((line, index) => {
+                const trimmedLine = line.trim();
+                let x = canvas.width / 2;
+                let y = startY + index * lineHeight;
+                const maxWidth = canvas.width - 100;
+
+                 const parts = trimmedLine.split('  //  ');
+                if (parts.length > 1) {
+                    const firstPart = parts[0].trim();
+                    const secondPart = parts[1].trim();
+                    context.font = 'bold 18px Inter';  // Reduced font size
+                    y = drawText(ctx, firstPart, x, y, maxWidth);
+                    context.font = '18px Inter';  // Reduced font size
+                     y = drawText(ctx, secondPart, x, y+lineHeight, maxWidth);
+                }
+                else{
+                     y = drawText(ctx, trimmedLine, x, y, maxWidth);
+                }
+            });
+
+            // Convert the canvas to a data URL with higher quality
+            const dataURL = canvas.toDataURL('image/jpeg', 0.95);  // 0.95 for high quality
+
+            // Create a new window for the image
+            const newTab = window.open();
+            if (newTab) {
+                newTab.document.write('<html><head><title>Data Image</title></head><body><img src="' + dataURL + '" style="width:100%; height:auto;"></body></html>');
+                newTab.document.close(); // Important: Close the document!
+            }
+
+            clickedButton.textContent = 'Opened!';
+            setTimeout(() => {
+                clickedButton.textContent = 'Share';
+            }, 2000);
+        }
+
+        window.onload = loadSheet;
+    </script>
+</body>
+</html>
+
