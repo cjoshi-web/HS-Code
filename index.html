@@ -1,436 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Oman eCustoms Smart Search</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-
-body{
-margin:0;
-font-family:'Poppins',sans-serif;
-background:#eef2f7;
-color:#1f2937;
+/* RESET & BODY */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #eef2f7;
+  color: #1f2937;
 }
 
-.header{
-background:#1f2937;
-color:white;
-padding:18px 30px;
-font-size:20px;
-font-weight:600;
+/* HEADER */
+.header {
+  background: #2563eb;
+  color: white;
+  padding: 16px 20px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
 }
 
-.container{
-max-width:1200px;
-margin:auto;
-padding:30px 20px;
+/* CONTAINER */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
 }
 
-/* SEARCH */
-
-.searchCard{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 4px 14px rgba(0,0,0,0.08);
-
-display:grid;
-grid-template-columns:1fr 1fr 1fr auto auto;
-gap:12px;
+/* SEARCH CARD */
+.searchCard {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
-.inputWrapper{
-display:flex;
-align-items:center;
-border:1px solid #d1d5db;
-border-radius:8px;
-padding:8px 10px;
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: white;
+  flex: 1 1 200px;
 }
 
-.inputWrapper img{
-width:18px;
-margin-right:8px;
-opacity:0.6;
+.inputWrapper img {
+  width: 18px;
+  margin-right: 8px;
+  opacity: 0.6;
 }
 
 .inputWrapper input,
-.inputWrapper select{
-border:none;
-outline:none;
-width:100%;
-font-size:14px;
+.inputWrapper select {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 16px;
 }
 
-button{
-border:none;
-border-radius:8px;
-padding:9px 16px;
-font-size:14px;
-cursor:pointer;
+/* BUTTONS */
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1 1 100px;
 }
 
-.searchBtn{
-background:#2563eb;
-color:white;
+.searchBtn {
+  background: #2563eb;
+  color: white;
 }
+.searchBtn:hover { background: #1e40af; }
 
-.clearBtn{
-background:#e5e7eb;
+.clearBtn {
+  background: #e5e7eb;
 }
+.clearBtn:hover { background: #d1d5db; }
 
 /* TABLE */
-
-.tableContainer{
-margin-top:30px;
-background:white;
-border-radius:10px;
-overflow:hidden;
-box-shadow:0 4px 14px rgba(0,0,0,0.08);
+.tableContainer {
+  background: white;
+  border-radius: 10px;
+  overflow-x: auto;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
 }
 
-th,td{
-padding:12px;
-border-bottom:1px solid #e5e7eb;
-text-align:left;
-font-size:14px;
+th, td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
 }
 
-thead{
-background:#f3f4f6;
+thead {
+  background: #f3f4f6;
 }
 
-tbody tr:hover{
-background:#f9fafb;
+tbody tr:hover {
+  background: #f9fafb;
 }
 
-.shareBtn{
-background:#16a34a;
-color:white;
-padding:6px 12px;
-font-size:13px;
+.shareBtn {
+  background: #16a34a;
+  color: white;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.shareBtn:hover {
+  background: #15803d;
 }
 
-/* POPUP */
-
-.sharePopup{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.6);
-justify-content:center;
-align-items:center;
+/* SHARE POPUP */
+.sharePopup {
+  display: none;
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+.popupContent {
+  background:white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+}
+.closeBtn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
 }
 
-.popupContent{
-background:white;
-padding:20px;
-border-radius:10px;
-position:relative;
+/* MOBILE STYLING */
+@media(max-width:600px) {
+  .searchCard {
+    flex-direction: column;
+  }
+  .inputWrapper, button {
+    flex: 1 1 100%;
+  }
+  input, select {
+    font-size: 16px;
+    padding: 10px;
+  }
+  button {
+    padding: 12px;
+    font-size: 16px;
+  }
 }
-
-.closeBtn{
-position:absolute;
-top:10px;
-right:15px;
-font-size:24px;
-cursor:pointer;
-}
-
 </style>
-
 </head>
-
 <body>
 
-<div class="header">
-Oman eCustoms Smart Search
-</div>
+<div class="header">Oman eCustoms Smart Search</div>
 
 <div class="container">
 
-<div class="searchCard">
+  <!-- SEARCH CARD -->
+  <div class="searchCard">
+    <div class="inputWrapper">
+      <img src="https://img.icons8.com/ios-filled/50/000000/code.png"/>
+      <input id="hsCodeSearch" placeholder="12 Digit HS Code">
+    </div>
+    <div class="inputWrapper">
+      <img src="https://img.icons8.com/ios-filled/50/000000/marker.png"/>
+      <input id="cooSearch" placeholder="COO">
+    </div>
+    <div class="inputWrapper">
+      <img src="https://img.icons8.com/ios-filled/50/000000/box.png"/>
+      <select id="uomSearch"><option value="">UOM</option></select>
+    </div>
+    <button class="searchBtn" onclick="searchData()">Search</button>
+    <button class="clearBtn" onclick="clearSearch()">Clear</button>
+  </div>
 
-<div class="inputWrapper">
-<img src="https://img.icons8.com/ios-filled/50/000000/code.png">
-<input id="hsCodeSearch" placeholder="12 Digit HS Code">
-</div>
-
-<div class="inputWrapper">
-<img src="https://img.icons8.com/ios-filled/50/000000/marker.png">
-<input id="cooSearch" placeholder="COO">
-</div>
-
-<div class="inputWrapper">
-<select id="uomSearch">
-<option value="">UOM</option>
-</select>
-</div>
-
-<button class="searchBtn" onclick="searchData()">Search</button>
-<button class="clearBtn" onclick="clearSearch()">Clear</button>
-
-</div>
-
-
-<div class="tableContainer">
-
-<table>
-
-<thead>
-<tr>
-<th>HS Code</th>
-<th>COO</th>
-<th>UOM</th>
-<th>OMR</th>
-<th>AED</th>
-<th></th>
-</tr>
-</thead>
-
-<tbody id="results"></tbody>
-
-</table>
+  <!-- TABLE -->
+  <div class="tableContainer">
+    <table>
+      <thead>
+        <tr>
+          <th>HS Code</th>
+          <th>COO</th>
+          <th>UOM</th>
+          <th>OMR</th>
+          <th>AED</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="results"></tbody>
+    </table>
+  </div>
 
 </div>
 
-</div>
-
-
+<!-- SHARE POPUP -->
 <div id="sharePopup" class="sharePopup">
-
-<div class="popupContent">
-
-<span class="closeBtn">&times;</span>
-
-<canvas id="shareCanvas"></canvas>
-
-<button onclick="downloadShareCard()" style="margin-top:10px;background:#2563eb;color:white">
-Download
-</button>
-
+  <div class="popupContent">
+    <span class="closeBtn">&times;</span>
+    <canvas id="shareCanvas"></canvas>
+    <button onclick="downloadShareCard()" style="margin-top:10px;background:#2563eb;color:white">Download</button>
+  </div>
 </div>
-
-</div>
-
 
 <script>
-
-/* CSV PARSER */
-
+/* CSV PARSER & LOAD */
 function parseCSV(text){
-
-const rows=[];
-const lines=text.split(/\r?\n/);
-
-let headers=[];
-
-for(let i=0;i<lines.length;i++){
-
-let row=[];
-let current='';
-let inQuotes=false;
-
-for(let j=0;j<lines[i].length;j++){
-
-let c=lines[i][j];
-
-if(c==='\"') inQuotes=!inQuotes;
-else if(c===',' && !inQuotes){
-row.push(current);
-current='';
-}
-else current+=c;
-
-}
-
-row.push(current);
-
-if(i===0) headers=row;
-else if(row.length>1) rows.push(row);
-
-}
-
-return {headers,rows};
-
+  const rows=[], lines=text.split(/\r?\n/);
+  let headers=[];
+  for(let i=0;i<lines.length;i++){
+    let row=[], current='', inQuotes=false;
+    for(let j=0;j<lines[i].length;j++){
+      let c=lines[i][j];
+      if(c=='"') inQuotes=!inQuotes;
+      else if(c==',' && !inQuotes){ row.push(current); current=''; }
+      else current+=c;
+    }
+    row.push(current);
+    if(i==0) headers=row;
+    else if(row.length>1) rows.push(row);
+  }
+  return {headers, rows};
 }
 
 const sheetURL="https://docs.google.com/spreadsheets/d/1hVp3RJPYJ5KUO4qotPIOUMharyQa1E6lqMhgWAuOpMs/export?format=csv";
-
-let headers=[],rows=[];
-
+let headers=[], rows=[];
 async function loadSheet(){
-
-const res=await fetch(sheetURL);
-const text=await res.text();
-
-const parsed=parseCSV(text);
-
-headers=parsed.headers;
-rows=parsed.rows;
-
-populateUOMDropdown();
-
+  const res=await fetch(sheetURL);
+  const text=await res.text();
+  const parsed=parseCSV(text);
+  headers=parsed.headers; rows=parsed.rows;
+  populateUOMDropdown();
 }
-
 function populateUOMDropdown(){
-
-const idx=headers.indexOf("UOM in Oman eCustoms");
-
-const select=document.getElementById("uomSearch");
-
-const set=new Set();
-
-rows.forEach(r=>{
-const val=(r[idx]||"").trim();
-if(val) set.add(val);
-});
-
-Array.from(set).sort().forEach(v=>{
-const opt=document.createElement("option");
-opt.value=v;
-opt.text=v;
-select.appendChild(opt);
-});
-
+  const uomSelect=document.getElementById("uomSearch");
+  const idx=headers.indexOf("UOM in Oman eCustoms");
+  const uoms=new Set();
+  rows.forEach(r=>{
+    const val=(r[idx]||"").trim();
+    if(val) uoms.add(val);
+  });
+  Array.from(uoms).sort().forEach(v=>{
+    const opt=document.createElement("option");
+    opt.value=v; opt.text=v;
+    uomSelect.appendChild(opt);
+  });
 }
-
 loadSheet();
 
-/* SEARCH */
-
+/* SEARCH FUNCTION */
 function searchData(){
+  const hsCode=document.getElementById("hsCodeSearch").value.toLowerCase();
+  const coo=document.getElementById("cooSearch").value.toLowerCase();
+  const uom=document.getElementById("uomSearch").value.toLowerCase();
+  const results=document.getElementById("results");
+  results.innerHTML="";
+  const filtered=rows.filter(r=>{
+    const obj={}; headers.forEach((h,i)=>obj[h]=r[i]);
+    return (!hsCode||(obj["12 Digit HS Code"]||"").toLowerCase().includes(hsCode))
+        && (!coo||(obj["COO"]||"").toLowerCase().includes(coo))
+        && (!uom||(obj["UOM in Oman eCustoms"]||"").toLowerCase()===uom);
+  });
 
-const hsCode=document.getElementById("hsCodeSearch").value.toLowerCase();
-const coo=document.getElementById("cooSearch").value.toLowerCase();
-const uom=document.getElementById("uomSearch").value.toLowerCase();
-
-const results=document.getElementById("results");
-results.innerHTML="";
-
-const filtered=rows.filter(r=>{
-
-const obj={};
-headers.forEach((h,i)=>obj[h]=r[i]);
-
-return (!hsCode||(obj["12 Digit HS Code"]||"").toLowerCase().includes(hsCode))
-&& (!coo||(obj["COO"]||"").toLowerCase().includes(coo))
-&& (!uom||(obj["UOM in Oman eCustoms"]||"").toLowerCase()===uom);
-
-});
-
-filtered.forEach(r=>{
-
-const obj={};
-headers.forEach((h,i)=>obj[h]=r[i]);
-
-const row=document.createElement("tr");
-
-row.innerHTML=`
-
-<td>${obj["12 Digit HS Code"]||""}</td>
-<td>${obj["COO"]||""}</td>
-<td>${obj["UOM in Oman eCustoms"]||""}</td>
-<td>${obj["OMR"]||""}</td>
-<td>${obj["AED"]||""}</td>
-<td><button class="shareBtn">Share</button></td>
-
-`;
-
-row.querySelector("button").onclick=()=>openSharePopup(obj);
-
-results.appendChild(row);
-
-});
-
+  filtered.forEach(r=>{
+    const obj={}; headers.forEach((h,i)=>obj[h]=r[i]);
+    const row=document.createElement("tr");
+    row.innerHTML=`
+      <td>${obj["12 Digit HS Code"]||""}</td>
+      <td>${obj["COO"]||""}</td>
+      <td>${obj["UOM in Oman eCustoms"]||""}</td>
+      <td>${obj["OMR"]||""}</td>
+      <td>${obj["AED"]||""}</td>
+      <td><button class="shareBtn">Share</button></td>
+    `;
+    row.querySelector("button").onclick=()=>openSharePopup(obj);
+    results.appendChild(row);
+  });
 }
 
 function clearSearch(){
-
-document.getElementById("hsCodeSearch").value="";
-document.getElementById("cooSearch").value="";
-document.getElementById("uomSearch").value="";
-document.getElementById("results").innerHTML="";
-
+  document.getElementById("hsCodeSearch").value="";
+  document.getElementById("cooSearch").value="";
+  document.getElementById("uomSearch").value="";
+  document.getElementById("results").innerHTML="";
 }
 
-/* SHARE */
-
+/* SHARE POPUP */
 function openSharePopup(obj){
-
-const canvas=document.getElementById("shareCanvas");
-const ctx=canvas.getContext("2d");
-
-let lines=[
-`HS Code: ${obj["12 Digit HS Code"]||""}`,
-`COO: ${obj["COO"]||""}`,
-`UOM: ${obj["UOM in Oman eCustoms"]||""}`,
-`Criteria Status: ${obj["Criteria Status"]||""}`
-];
-
-for(let i=1;i<=10;i++){
-if(obj[`Name - ${i}`] && obj[`Value - ${i}`]){
-lines.push(`${obj[`Name - ${i}`]}: ${obj[`Value - ${i}`]}`);
+  const canvas=document.getElementById("shareCanvas");
+  const ctx=canvas.getContext("2d");
+  let lines=[`HS Code: ${obj["12 Digit HS Code"]||""}`, `COO: ${obj["COO"]||""}`, `UOM: ${obj["UOM in Oman eCustoms"]||""}`, `Criteria Status: ${obj["Criteria Status"]||""}`];
+  for(let i=1;i<=10;i++){
+    if(obj[`Name - ${i}`] && obj[`Value - ${i}`]) lines.push(`${obj[`Name - ${i}`]}: ${obj[`Value - ${i}`]}`);
+  }
+  canvas.width=420; canvas.height=60+lines.length*28;
+  ctx.fillStyle="#2563eb"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="white"; ctx.font="16px Poppins";
+  let y=40; lines.forEach(l=>{ ctx.fillText(l,20,y); y+=28; });
+  document.getElementById("sharePopup").style.display="flex";
 }
-}
-
-canvas.width=420;
-canvas.height=60 + lines.length*28;
-
-ctx.fillStyle="#2563eb";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="white";
-ctx.font="16px Poppins";
-
-let y=40;
-
-lines.forEach(l=>{
-ctx.fillText(l,20,y);
-y+=28;
-});
-
-document.getElementById("sharePopup").style.display="flex";
-
-}
-
-document.querySelector(".closeBtn").onclick=function(){
-document.getElementById("sharePopup").style.display="none";
-}
-
+document.querySelector(".closeBtn").onclick=function(){ document.getElementById("sharePopup").style.display="none"; }
 function downloadShareCard(){
-
-const canvas=document.getElementById("shareCanvas");
-
-canvas.toBlob(function(blob){
-
-const link=document.createElement("a");
-link.download="shared_card.png";
-link.href=URL.createObjectURL(blob);
-
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
-
-});
-
+  const canvas=document.getElementById("shareCanvas");
+  canvas.toBlob(function(blob){
+    const link=document.createElement("a");
+    link.download="shared_card.png";
+    link.href=URL.createObjectURL(blob);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  });
 }
-
 </script>
-
 </body>
 </html>
