@@ -222,6 +222,8 @@ tbody tr:hover {
 </div>
 
 <script>
+let currentObj = null;
+
 function parseCSV(text){
   const rows=[], lines=text.split(/\r?\n/);
   let headers=[];
@@ -301,7 +303,6 @@ function clearSearch(){
   document.getElementById("results").innerHTML="";
 }
 
-let currentObj=null;
 function openSharePopup(obj){
   currentObj=obj;
   const canvas=document.getElementById("shareCanvas");
@@ -325,7 +326,7 @@ function downloadShareCard(){
   const canvas=document.getElementById("shareCanvas");
   canvas.toBlob(function(blob){
     const link=document.createElement("a");
-    link.download="shared_card.png";
+    link.download="HSCode.png";
     link.href=URL.createObjectURL(blob);
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
   });
@@ -335,11 +336,15 @@ function sharePNG(){
   const canvas=document.getElementById("shareCanvas");
   canvas.toBlob(function(blob){
     const file = new File([blob], "HSCode.png", { type: "image/png" });
-    if(navigator.canShare && navigator.canShare({ files: [file] })) {
+    const shareText = 
+      "HS Code: " + (currentObj["12 Digit HS Code"]||"") + "\n" +
+      "COO: " + (currentObj["COO"]||"") + "\n" +
+      "UOM: " + (currentObj["UOM in Oman eCustoms"]||"");
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
       navigator.share({
         files: [file],
         title: "HS Code Details",
-        text: "Sharing HS Code details from Oman eCustoms"
+        text: shareText
       }).catch(console.error);
     } else {
       alert("Sharing not supported on this device.");
