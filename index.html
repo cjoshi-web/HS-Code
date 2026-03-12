@@ -6,7 +6,6 @@
 <title>Oman eCustoms Smart Search</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-/* RESET & BODY */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -14,7 +13,6 @@ body {
   color: #1f2937;
 }
 
-/* HEADER */
 .header {
   background: #2563eb;
   color: white;
@@ -24,14 +22,12 @@ body {
   text-align: center;
 }
 
-/* CONTAINER */
 .container {
   max-width: 1100px;
   margin: auto;
   padding: 20px;
 }
 
-/* SEARCH CARD */
 .searchCard {
   background: white;
   padding: 20px;
@@ -67,7 +63,6 @@ body {
   font-size: 16px;
 }
 
-/* BUTTONS */
 button {
   border: none;
   border-radius: 8px;
@@ -88,7 +83,6 @@ button {
 }
 .clearBtn:hover { background: #d1d5db; }
 
-/* TABLE */
 .tableContainer {
   background: white;
   border-radius: 10px;
@@ -116,17 +110,16 @@ tbody tr:hover {
   background: #f9fafb;
 }
 
-.shareBtn {
+.viewBtn {
   background: #16a34a;
   color: white;
   padding: 6px 12px;
   font-size: 13px;
 }
-.shareBtn:hover {
+.viewBtn:hover {
   background: #15803d;
 }
 
-/* SHARE POPUP */
 .sharePopup {
   display: none;
   position: fixed;
@@ -151,8 +144,13 @@ tbody tr:hover {
   font-size: 24px;
   cursor: pointer;
 }
+.popupButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
 
-/* MOBILE STYLING */
 @media(max-width:600px) {
   .searchCard {
     flex-direction: column;
@@ -177,11 +175,10 @@ tbody tr:hover {
 
 <div class="container">
 
-  <!-- SEARCH CARD -->
   <div class="searchCard">
     <div class="inputWrapper">
       <img src="https://img.icons8.com/ios-filled/50/000000/code.png"/>
-      <input id="hsCodeSearch" placeholder="12 Digit HS Code">
+      <input id="hsCodeSearch" placeholder="12 Digit HS Code" inputmode="numeric" pattern="\d*">
     </div>
     <div class="inputWrapper">
       <img src="https://img.icons8.com/ios-filled/50/000000/marker.png"/>
@@ -195,7 +192,6 @@ tbody tr:hover {
     <button class="clearBtn" onclick="clearSearch()">Clear</button>
   </div>
 
-  <!-- TABLE -->
   <div class="tableContainer">
     <table>
       <thead>
@@ -214,17 +210,18 @@ tbody tr:hover {
 
 </div>
 
-<!-- SHARE POPUP -->
 <div id="sharePopup" class="sharePopup">
   <div class="popupContent">
     <span class="closeBtn">&times;</span>
     <canvas id="shareCanvas"></canvas>
-    <button onclick="downloadShareCard()" style="margin-top:10px;background:#2563eb;color:white">Download</button>
+    <div class="popupButtons">
+      <button onclick="downloadShareCard()" style="background:#2563eb;color:white">Download</button>
+      <button onclick="sharePNG()" style="background:#16a34a;color:white">Share</button>
+    </div>
   </div>
 </div>
 
 <script>
-/* CSV PARSER & LOAD */
 function parseCSV(text){
   const rows=[], lines=text.split(/\r?\n/);
   let headers=[];
@@ -268,7 +265,6 @@ function populateUOMDropdown(){
 }
 loadSheet();
 
-/* SEARCH FUNCTION */
 function searchData(){
   const hsCode=document.getElementById("hsCodeSearch").value.toLowerCase();
   const coo=document.getElementById("cooSearch").value.toLowerCase();
@@ -291,7 +287,7 @@ function searchData(){
       <td>${obj["UOM in Oman eCustoms"]||""}</td>
       <td>${obj["OMR"]||""}</td>
       <td>${obj["AED"]||""}</td>
-      <td><button class="shareBtn">Share</button></td>
+      <td><button class="viewBtn">View</button></td>
     `;
     row.querySelector("button").onclick=()=>openSharePopup(obj);
     results.appendChild(row);
@@ -305,8 +301,9 @@ function clearSearch(){
   document.getElementById("results").innerHTML="";
 }
 
-/* SHARE POPUP */
+let currentObj=null;
 function openSharePopup(obj){
+  currentObj=obj;
   const canvas=document.getElementById("shareCanvas");
   const ctx=canvas.getContext("2d");
   let lines=[`HS Code: ${obj["12 Digit HS Code"]||""}`, `COO: ${obj["COO"]||""}`, `UOM: ${obj["UOM in Oman eCustoms"]||""}`, `Criteria Status: ${obj["Criteria Status"]||""}`];
@@ -319,7 +316,11 @@ function openSharePopup(obj){
   let y=40; lines.forEach(l=>{ ctx.fillText(l,20,y); y+=28; });
   document.getElementById("sharePopup").style.display="flex";
 }
-document.querySelector(".closeBtn").onclick=function(){ document.getElementById("sharePopup").style.display="none"; }
+
+document.querySelector(".closeBtn").onclick=function(){
+  document.getElementById("sharePopup").style.display="none";
+}
+
 function downloadShareCard(){
   const canvas=document.getElementById("shareCanvas");
   canvas.toBlob(function(blob){
@@ -327,6 +328,22 @@ function downloadShareCard(){
     link.download="shared_card.png";
     link.href=URL.createObjectURL(blob);
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  });
+}
+
+function sharePNG(){
+  const canvas=document.getElementById("shareCanvas");
+  canvas.toBlob(function(blob){
+    const file = new File([blob], "HSCode.png", { type: "image/png" });
+    if(navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({
+        files: [file],
+        title: "HS Code Details",
+        text: "Sharing HS Code details from Oman eCustoms"
+      }).catch(console.error);
+    } else {
+      alert("Sharing not supported on this device.");
+    }
   });
 }
 </script>
