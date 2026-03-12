@@ -9,12 +9,12 @@
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: #eef2f7;
-  color: #1f2937;
+  background: #eef2f7; /* light blue-gray background */
+  color: #1f2937; /* dark text */
 }
 
 .header {
-  background: #2563eb;
+  background: #2563eb; /* bright blue */
   color: white;
   padding: 16px 20px;
   font-size: 20px;
@@ -171,14 +171,14 @@ tbody tr:hover {
 </head>
 <body>
 
-<div class="header">Oman eCustoms Smart Search</div>
+<div class="header">⚡Criteria Finder | HS & Customs ⚡</div>
 
 <div class="container">
 
   <div class="searchCard">
     <div class="inputWrapper">
       <img src="https://img.icons8.com/ios-filled/50/000000/code.png"/>
-      <input id="hsCodeSearch" placeholder="12 Digit HS Code" inputmode="numeric" pattern="\d*">
+      <input id="hsCodeSearch" placeholder="HS Code" inputmode="numeric" pattern="\d*">
     </div>
     <div class="inputWrapper">
       <img src="https://img.icons8.com/ios-filled/50/000000/marker.png"/>
@@ -201,6 +201,7 @@ tbody tr:hover {
           <th>UOM</th>
           <th>OMR</th>
           <th>AED</th>
+          <th>Description</th>
           <th></th>
         </tr>
       </thead>
@@ -289,6 +290,7 @@ function searchData(){
       <td>${obj["UOM in Oman eCustoms"]||""}</td>
       <td>${obj["OMR"]||""}</td>
       <td>${obj["AED"]||""}</td>
+      <td>${obj["Description"]||""}</td>
       <td><button class="viewBtn">View</button></td>
     `;
     row.querySelector("button").onclick=()=>openSharePopup(obj);
@@ -303,19 +305,72 @@ function clearSearch(){
   document.getElementById("results").innerHTML="";
 }
 
-function openSharePopup(obj){
-  currentObj=obj;
-  const canvas=document.getElementById("shareCanvas");
-  const ctx=canvas.getContext("2d");
-  let lines=[`HS Code: ${obj["12 Digit HS Code"]||""}`, `COO: ${obj["COO"]||""}`, `UOM: ${obj["UOM in Oman eCustoms"]||""}`, `Criteria Status: ${obj["Criteria Status"]||""}`];
-  for(let i=1;i<=10;i++){
-    if(obj[`Name - ${i}`] && obj[`Value - ${i}`]) lines.push(`${obj[`Name - ${i}`]}: ${obj[`Value - ${i}`]}`);
+function openSharePopup(obj) {
+  currentObj = obj;
+  const canvas = document.getElementById("shareCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const padding = 20;         // padding around the text
+  const lineHeight = 28;      // space between lines
+  const maxLineWidth = 400;   // max width before wrapping
+
+  ctx.font = "16px Poppins";
+
+  // Gather lines to display
+  let lines = [
+    `HS Code: ${obj["12 Digit HS Code"] || ""}`,
+    `COO: ${obj["COO"] || ""}`,
+    `UOM: ${obj["UOM in Oman eCustoms"] || ""}`,
+    `Criteria Status: ${obj["Criteria Status"] || ""}`
+  ];
+
+  // Add extra Name/Value fields
+  for (let i = 1; i <= 10; i++) {
+    if (obj[`Name - ${i}`] && obj[`Value - ${i}`]) {
+      lines.push(`${obj[`Name - ${i}`]}: ${obj[`Value - ${i}`]}`);
+    }
   }
-  canvas.width=420; canvas.height=60+lines.length*28;
-  ctx.fillStyle="#2563eb"; ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle="white"; ctx.font="16px Poppins";
-  let y=40; lines.forEach(l=>{ ctx.fillText(l,20,y); y+=28; });
-  document.getElementById("sharePopup").style.display="flex";
+
+  // Wrap text and calculate the widest line
+  let wrappedLines = [];
+  let widest = 0;
+  lines.forEach(line => {
+    const words = line.split(' ');
+    let currentLine = '';
+    words.forEach(word => {
+      const testLine = currentLine + word + ' ';
+      const metrics = ctx.measureText(testLine);
+      if (metrics.width > maxLineWidth) {
+        wrappedLines.push(currentLine.trim());
+        widest = Math.max(widest, ctx.measureText(currentLine).width);
+        currentLine = word + ' ';
+      } else {
+        currentLine = testLine;
+      }
+    });
+    wrappedLines.push(currentLine.trim());
+    widest = Math.max(widest, ctx.measureText(currentLine).width);
+  });
+
+  // Set canvas size including padding
+  canvas.width = widest + padding * 2;
+  canvas.height = wrappedLines.length * lineHeight + padding * 2;
+
+  // Clear background (plain white)
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw text
+  ctx.fillStyle = "#1f2937"; // dark text color
+  ctx.font = "16px Poppins";
+  let y = padding + lineHeight / 1.5; // start slightly below top padding
+  wrappedLines.forEach(line => {
+    ctx.fillText(line, padding, y);
+    y += lineHeight;
+  });
+
+  // Show popup
+  document.getElementById("sharePopup").style.display = "flex";
 }
 
 document.querySelector(".closeBtn").onclick=function(){
@@ -324,11 +379,16 @@ document.querySelector(".closeBtn").onclick=function(){
 
 function downloadShareCard(){
   const canvas=document.getElementById("shareCanvas");
+  const hs = currentObj["12 Digit HS Code"]||"";
+  const coo = currentObj["COO"]||"";
+  const uom = currentObj["UOM in Oman eCustoms"]||"";
+  const fileName = `HS-${hs}_COO-${coo}_UOM-${uom}.png`;
+  
   canvas.toBlob(function(blob){
     const link=document.createElement("a");
-    link.download="HSCode.png";
+    link.download=fileName;
     link.href=URL.createObjectURL(blob);
-    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    link.click();
   });
 }
 
@@ -341,16 +401,19 @@ function sharePNG(){
       "COO: " + (currentObj["COO"]||"") + "\n" +
       "UOM: " + (currentObj["UOM in Oman eCustoms"]||"");
     if(navigator.canShare && navigator.canShare({ files: [file] })){
-      navigator.share({
-        files: [file],
-        title: "HS Code Details",
-        text: shareText
-      }).catch(console.error);
-    } else {
-      alert("Sharing not supported on this device.");
-    }
+      navigator.share({ files: [file], title: "HS Code Details", text: shareText }).catch(console.error);
+    } else alert("Sharing not supported on this device.");
   });
 }
+
+['hsCodeSearch','cooSearch'].forEach(id => {
+  document.getElementById(id).addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchData();
+    }
+  });
+});
+
 </script>
 </body>
 </html>
